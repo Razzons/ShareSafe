@@ -8,6 +8,19 @@ dotenv.config({path: './.env'});
 const app = express();
 const db = require('./connection')
 
+app.use(
+    session({
+        secret: 'secret-key',
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            maxAge: 600000, //10 minutos em milisegundos
+            secure: false //false deviso a não estar a usar https
+        },
+        rolling: true //dá reset ao tempo de sessão a cada request que o utilizador faz 
+    })
+);
+
 const publicDirectory = path.join(__dirname, './public');
 app.use(express.static(publicDirectory));
 
@@ -16,10 +29,6 @@ app.set('view engine', 'hbs');
 //Definir as rotas 
 app.use('/', require('./routes/pages'));
 
-app.get("/", (req, res) => {
-    res.send("<h1>Home Page</h1>")
-});
-
-app.listen(5001, () =>{
-    console.log("Server started on port 5001");
+app.listen(5050, () =>{
+    console.log("Server started on port 5050");
 });
