@@ -6,11 +6,12 @@ const session = require('express-session');
 dotenv.config({path: './.env'});
 
 const app = express();
-const db = require('./connection')
+const db = require('./connection');
+const generateSessionKey = require('./session');
 
 app.use(
     session({
-        secret: 'secret-key',
+        secret: generateSessionKey(),
         resave: false,
         saveUninitialized: false,
         cookie: {
@@ -28,6 +29,8 @@ app.set('view engine', 'hbs');
 
 //Definir as rotas 
 app.use('/', require('./routes/pages'));
+app.use("/auth", require("./routes/auth"));
+app.use("/msg", require("./routes/message"));
 
 app.listen(5050, () =>{
     console.log("Server started on port 5050");

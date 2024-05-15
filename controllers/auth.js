@@ -54,12 +54,32 @@ exports.login = (req, res) => {
         const validPassword = bcrypt.compareSync(password + results[0].salt, results[0].hashedPassword );
 
         if (!validPassword) {
-            
+            return res.render("index", {
+                message: "Incorrect Password"
+            });
+        } else {
+            req.session.authenticated = true;
+            req.session.user = results[0];
+            req.app.locals.message = "Successfull login"
         }
+        
+        console.log("User Authenticated?" + req.session.authenticated );
+        console.log(req.session.user);
 
+        res.redirect("/home");
     });
 }
 
 exports.logout = (req, res) => {
-    
+    req.session.destroy ((error) => {
+        if (error) {
+            console.log(error);
+            return res.render('home', {
+                message: "An error was ocurred when you are trying to logout"
+            });
+        } else {
+            req.app.locals.message = "Successfull Logout"
+            res.redirect('/');
+        }
+    });
 }
