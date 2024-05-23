@@ -11,12 +11,15 @@
 <body>
 
     <header class="header">
-        <a href="#" class="logo">ShareSafe</a>
+        <a href="home" class="logo">ShareSafe</a>
 
         <nav class="navbar"> 
-            <a href="home">Home</a>
-            <a href="chat">Chat</a>
-            <button class="btn-logout"></button>
+                <a href="home">Home</a>
+                <a href="chat">Chat</a>
+                <form action="/auth/logout" method="POST">
+                    <button type="submit" class="btn-logout">Logout</button>
+                </form>
+            
         </nav>
     </header>
 

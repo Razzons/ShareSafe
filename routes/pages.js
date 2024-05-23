@@ -21,6 +21,4 @@ router.get('/message', (req, res) => {
     res.render('message');
 });
 
-
-
 module.exports = router;

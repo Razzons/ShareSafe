@@ -1,8 +1,9 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const db = require("../connection");
 
 exports.register = (req, res) => {
-    const { username, email, password, passwordConfirm } = req.body;
+
+    const { username, email, password, passwordConfirm } = req.body
 
     db.query("SELECT email, username FROM User WHERE email = ? AND username = ?", [email, username], (error, results) => {
         if (error) {
@@ -28,45 +29,57 @@ exports.register = (req, res) => {
             })
         }
 
-        const salt = bcrypt.genSaltSync(12);
-        const hashedPassword = bcrypt.hashSync(password + salt);
+        let salt = bcrypt.genSaltSync(12);
+        let hashedPassword = bcrypt.hashSync(password + salt);
         console.log(hashedPassword);
 
         //Inserir na base de dados os dados do formulário
+        db.query('INSERT INTO User SET ?', {username: username, salt: salt , password: hashedPassword, email: email}, (error, results) => {
+            if(error){
+                console.log(error);
+            } else{
+                console.log(results);
+                req.session.user = results[0];
+                return res.redirect('/');
+            }
+        });
 
     });
 }
 
 exports.login = (req, res) => {
-    const { username, password } = req.body;
 
-    db.query("SELECT * FROM User WHERE username = ?", [username], (req, res) => {
+    const {username, password} = req.body
+
+    db.query("SELECT * FROM User WHERE username = ?", [username], async (error, results) => {
         if (error) {
             console.log(error);
-        }
+        } 
 
-        if (results.length === 0 ) {
-            return res.render("index", {
-                message: "Incorrect Username"
+        if (results.length === 0) {
+            console.log(error);
+            return res.render('index', {
+                message: "Your username is incorrect"
             });
         }
 
-        const validPassword = bcrypt.compareSync(password + results[0].salt, results[0].hashedPassword );
-
+        const validPassword = bcrypt.compareSync(password + results[0].salt, results[0].password); 
+        
         if (!validPassword) {
-            return res.render("index", {
-                message: "Incorrect Password"
+            return res.render('index', {
+                message: "Incorrect password"
             });
         } else {
             req.session.authenticated = true;
             req.session.user = results[0];
             req.app.locals.message = "Successfull login"
         }
-        
-        console.log("User Authenticated?" + req.session.authenticated );
+
+        console.log("User authenticated? " + req.session.authenticated);
         console.log(req.session.user);
 
         res.redirect("/home");
+    
     });
 }
 

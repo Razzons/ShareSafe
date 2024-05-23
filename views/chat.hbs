@@ -2,10 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="/style.css">
+    <title>ShareSafe</title>
 </head>
 <body>
+
+    <header class="header">
+        <a href="#" class="logo">ShareSafe</a>
+
+        <nav class="navbar"> 
+                <a href="home">Home</a>
+                <a href="chat">Chat</a>
+                <form action="/auth/logout" method="POST">
+                    <button type="submit" class="btn-logout">Logout</button>
+                </form>
+            
+        </nav>
+    </header>
+
+    <div class="addWallet">
+        <a href="/createGrp"><button class="add">Create Group</button></a>
+        <a href="/sendMsg"><button class="add">Send Message</button></a>
+    </div>
+
     <h1>Chat Page</h1>
 </body>
 </html>

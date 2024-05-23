@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
 const session = require('express-session');
+const multer = require('multer');
 
 dotenv.config({path: './.env'});
 
@@ -24,6 +25,11 @@ app.use(
 
 const publicDirectory = path.join(__dirname, './public');
 app.use(express.static(publicDirectory));
+
+//Parse URL-enconded bodies (as sent by html forms)
+app.use(express.urlencoded({extended: false}));
+// Parse JSON bodies (as sent by API clients)
+app.use(express.json());
 
 app.set('view engine', 'hbs');
 
