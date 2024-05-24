@@ -2,10 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="/style.css">
+    <title>ShareSafe</title>
 </head>
+
 <body>
-    <h1>Send Message form</h1>
+
+    <header class="header">
+        <a href="#" class="logo">ShareSafe</a>
+    </header>
+
+    <div class="wrapperWallet">
+
+        <div class="form-box login">
+            <h2>Send File Form</h2>
+            <form action="/msg/send" method="POST" enctype="multipart/form-data">
+                <div class="input-box">
+                    <h3>Send to...</h3>
+                    <select id="chatName" name="chatName">
+                        <option value="global">Global</option>
+                        <!-- Adicione outras opções de usuários aqui -->
+                        <option value="user1">User 1</option>
+                        <option value="user2">User 2</option>
+                        <!-- ... -->
+                    </select>
+                </div>
+                <div class="input-box">
+                    <h3>Choose a Cipher</h3>
+                    <select id="cipher" name="cipher">
+                        <option value="AES">AES</option>
+                        <!-- Adicione outras opções de cifras aqui se necessário -->
+                        <!-- <option value="otherCipher">Other Cipher</option> -->
+                    </select>
+                </div>
+                <div class="input-box">
+                    <h3>File to send...</h3>
+                    <input type="file" id="fileToSend" name="fileToSend">
+                </div>
+                <button type="submit" class="btn">Send File</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="/script.js"></script>
 </body>
+
 </html>

@@ -6,19 +6,19 @@ router.get('/', (req,res) => {
 });
 
 router.get('/home', (req,res) => {
-    res.render('home');
+    res.render('home', { user: req.session.user });
 });
 
 router.get('/chat', (req, res) => {
-    res.render('chat');
+    res.render('chat', { user: req.session.user });
 });
 
-router.get('/group_create', (req, res) => {
-    res.render('grp_create');
+router.get('/grp_create', (req, res) => {
+    res.render('grp_create', { user: req.session.user });
 });
 
 router.get('/message', (req, res) => {
-    res.render('message');
+    res.render('message', { user: req.session.user });
 });
 
 module.exports = router;
