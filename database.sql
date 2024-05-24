@@ -3,8 +3,10 @@ CREATE TABLE User (
     username VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(100) NOT NULL UNIQUE,
     salt VARCHAR(50) NOT NULL,
-    password VARCHAR(255) NOT NULL
+    password VARCHAR(255) NOT NULL,
+    publicKey TEXT
 );
+
 
 CREATE TABLE Global (
     id INT PRIMARY KEY AUTO_INCREMENT,
