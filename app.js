@@ -3,6 +3,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 const session = require('express-session');
 const multer = require('multer');
+const hbs = require('hbs'); 
 
 dotenv.config({path: './.env'});
 
@@ -32,6 +33,7 @@ app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 
 app.set('view engine', 'hbs');
+
 
 //Definir as rotas 
 app.use('/', require('./routes/pages'));
