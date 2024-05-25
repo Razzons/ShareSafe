@@ -60,6 +60,75 @@ exports.encrypt = (req, res) => {
     //Inserir script de python para encriptar com base numa flag que virá do body
 };
 
+const createTempFile = (data, callback) => {
+    const tempFilePath = path.join(os.tmpdir(), `tempfile-${Date.now()}`);
+    fs.writeFile(tempFilePath, data, (err) => {
+        if (err) return callback(err);
+        callback(null, tempFilePath);
+    });
+};
+
+const removeTempFile = (filePath) => {
+    fs.unlink(filePath, (err) => {
+        if (err) console.error('Error deleting temporary file:', err);
+    });
+};
+
 exports.decrypt = (req, res) => {
-    //Inserir script de python para desencriptar
+    const { id } = req.body; 
+
+    // Busca o arquivo na base de dados
+    const query = 'SELECT * FROM Global WHERE id = ?';
+    db.query(query, [id], (err, results) => {
+        if (err) {
+            console.error('Error fetching file:', err);
+            return res.status(500).send('Error fetching file.');
+        }
+
+        if (results.length === 0) {
+            return res.status(404).send('File not found.');
+        }
+
+        const fileData = results[0];
+        const encryptedFile = fileData.file;
+        const keyUsed = Buffer.from(fileData.key_used, 'hex');
+        const ivUsed = Buffer.from(fileData.iv_used, 'hex');
+        const cipherType = fileData.cipher;
+
+        const decryptFile = (encrypted, key, iv) => {
+            const decipher = crypto.createDecipheriv(cipherType, key, iv);
+            let decrypted = decipher.update(encrypted);
+            decrypted = Buffer.concat([decrypted, decipher.final()]);
+            return decrypted;
+        };
+
+        // Descriptografa o arquivo
+        const decryptedFile = decryptFile(encryptedFile, keyUsed, ivUsed);
+
+        // Verifica a integridade do arquivo usando o código de autenticação de mensagens (MAC)
+        const hmac = crypto.createHmac('sha256', keyUsed);
+        hmac.update(decryptedFile);
+        const calculatedMac = hmac.digest('hex');
+
+        if (calculatedMac !== fileData.mac) {
+            return res.status(400).send('File integrity check failed.');
+        }
+
+        // Cria um arquivo temporário para o arquivo descriptografado
+        createTempFile(decryptedFile, (err, tempFilePath) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).send('An error occurred while creating the temporary file');
+            }
+
+            // Envia o arquivo descriptografado para o usuário
+            res.download(tempFilePath, `decrypted_file_${id}`, (err) => {
+                // Remove o arquivo temporário após o envio
+                removeTempFile(tempFilePath);
+                if (err) {
+                    console.error('Error sending file:', err);
+                }
+            });
+        });
+    });
 };

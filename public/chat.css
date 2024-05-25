@@ -10,9 +10,11 @@ body {
     background: url('Alive.png') no-repeat;
     background-size: cover;
     background-position: center;
-    align-items: center;
-    justify-content: center;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 80px; /* Espaço para o header fixo */
 }
 
 .header {
@@ -28,7 +30,7 @@ body {
     z-index: 100;
 }
 
-.logo{
+.logo {
     font-size: 32px;
     color: #fff;
     text-decoration: none;
@@ -46,6 +48,7 @@ body {
     color: #fff;
     font-weight: 500;
     text-decoration: none;
+    position: relative;
 }
 
 .navbar a::before {
@@ -88,7 +91,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    margin-top: 20px;
 }
 
 .addWallet .add {
@@ -102,7 +105,7 @@ body {
     font-size: 1.1em;
     color: #fff;
     font-weight: 500;
-    margin-left: 40px;
+    margin: 10px 20px;
     transition: 0.2s;
 }
 
@@ -111,12 +114,50 @@ body {
     color: #162938;
 }
 
+.file-list {
+    width: 80%;
+    max-width: 950px;
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-top: 20px;
+    padding: 20px;
+}
+
+.file-list h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #162938;
+}
+
+.file-list table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.file-list th, .file-list td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    color: #162938;
+}
+
+.file-list th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.file-list tr:hover {
+    background-color: #f1f1f1;
+}
+
 .wrapper {
     position: relative;
     width: 400px;
     height: 440px;
     background: transparent;
-    border: 2px solid rgba (255, 255, 255, .5);
+    border: 2px solid rgba(255, 255, 255, .5);
     border-radius: 20px;
     backdrop-filter: blur(20px);
     box-shadow: 0 0 30px rgba(0, 0, 0, .5);
@@ -136,21 +177,20 @@ body {
     height: 550px;
 }
 
-.wrapper .form-box { 
+.wrapper .form-box {
     width: 100%;
     padding: 40px;
 }
 
 .wrapper .form-box.login {
-   transition: transform .18s ease;
-   transform: translateX(0);
+    transition: transform .18s ease;
+    transform: translateX(0);
 }
 
 .wrapper.active .form-box.login {
     transition: none;
     transform: translateX(-400px);
- }
- 
+}
 
 .wrapper .form-box.register {
     position: absolute;
@@ -161,7 +201,7 @@ body {
 .wrapper.active .form-box.register {
     transition: transform .18s ease;
     transform: translateX(0);
- }
+}
 
 .wrapper .icon-close {
     position: absolute;
@@ -180,7 +220,7 @@ body {
     z-index: 1;
 }
 
-.form-box h2 { 
+.form-box h2 {
     font-size: 2em;
     color: #fff;
     text-align: center;
@@ -206,7 +246,7 @@ body {
     transition: 0.5s;
 }
 
-.input-box input:focus~label, 
+.input-box input:focus~label,
 .input-box input:valid~label {
     top: -5px;
 }
@@ -296,7 +336,7 @@ body {
     width: 400px;
     height: 450px;
     background: transparent;
-    border: 2px solid rgba (255, 255, 255, .5);
+    border: 2px solid rgba(255, 255, 255, .5);
     border-radius: 20px;
     backdrop-filter: blur(20px);
     box-shadow: 0 0 30px rgba(0, 0, 0, .5);
@@ -307,7 +347,7 @@ body {
     transition: transform .5s ease, height .2s ease;
 }
 
-.wrapperWallet .form-box { 
+.wrapperWallet .form-box {
     width: 100%;
     padding: 40px;
 }
