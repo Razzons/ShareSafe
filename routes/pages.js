@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const db = require('../connection');
 
 router.get('/', (req,res) => {
     res.render('index');
@@ -10,7 +11,13 @@ router.get('/home', (req,res) => {
 });
 
 router.get('/chat', (req, res) => {
-    res.render('chat', { user: req.session.user });
+    db.query('SELECT * FROM Global', (error, results) => {
+        if (error) {
+            console.log(error);
+            return res.status(500).send('An error occurred');
+        }
+        res.render('chat', { user: req.session.user, files: results });
+    });
 });
 
 router.get('/grp_create', (req, res) => {
