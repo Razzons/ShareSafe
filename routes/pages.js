@@ -21,8 +21,15 @@ router.get('/chat', (req, res) => {
 });
 
 router.get('/grp_create', (req, res) => {
-    res.render('grp_create', { user: req.session.user });
+    db.query('SELECT id, username FROM User', (error, results) => {
+        if (error) {
+            console.log(error);
+            return res.status(500).send('An error occurred');
+        }
+        res.render('grp_create', { user: req.session.user, users: results });
+    });
 });
+
 
 router.get('/message', (req, res) => {
     res.render('message', { user: req.session.user });
