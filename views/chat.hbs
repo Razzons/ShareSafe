@@ -8,17 +8,14 @@
     <title>ShareSafe</title>
 </head>
 <body>
-
     <header class="header">
         <a href="#" class="logo">ShareSafe</a>
-
-        <nav class="navbar"> 
-                <a href="home">Home</a>
-                <a href="chat">Chat</a>
-                <form action="/auth/logout" method="POST">
-                    <button type="submit" class="btn-logout">Logout</button>
-                </form>
-            
+        <nav class="navbar">
+            <a href="/home">Home</a>
+            <a href="/chat">Chat</a>
+            <form action="/auth/logout" method="POST">
+                <button type="submit" class="btn-logout">Logout</button>
+            </form>
         </nav>
     </header>
 
@@ -27,5 +24,34 @@
         <a href="/message"><button class="add">Send Message</button></a>
     </div>
 
+    <div class="file-list">
+        <h2>Files</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User ID</th>
+                    <th>File</th>
+                    <th>Key Used</th>
+                    <th>IV Used</th>
+                    <th>Cipher</th>
+                    <th>MAC</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each files}}
+                    <tr>
+                        <td>{{this.id}}</td>
+                        <td>{{this.user_id}}</td>
+                        <td>{{this.file}}</td>
+                        <td>{{this.key_used}}</td>
+                        <td>{{this.iv_used}}</td>
+                        <td>{{this.cipher}}</td>
+                        <td>{{this.mac}}</td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
