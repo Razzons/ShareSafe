@@ -34,7 +34,7 @@ app.use(bodyParser.json());
 
 app.set('view engine', 'hbs');
 
-
+    
 //Definir as rotas 
 app.use('/', require('./routes/pages'));
 app.use("/auth", require("./routes/auth"));

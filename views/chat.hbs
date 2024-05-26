@@ -50,42 +50,5 @@
             </tbody>
         </table>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const buttons = document.querySelectorAll('.decrypt-button');
-            
-            buttons.forEach(button => {
-                button.addEventListener('click', async () => {
-                    const fileId = button.getAttribute('data-id');
-                    
-                    try {
-                        const response = await fetch('/msg/decrypt', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ id: fileId })
-                        });
-
-                        if (response.ok) {
-                            const blob = await response.blob();
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = 'decrypted_file';
-                            document.body.appendChild(a);
-                            a.click();
-                            a.remove();
-                        } else {
-                            console.error('Failed to decrypt file:', response.statusText);
-                        }
-                    } catch (error) {
-                        console.error('Error decrypting file:', error);
-                    }
-                });
-            });
-        });
-    </script>
 </body>
 </html>
