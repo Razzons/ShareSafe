@@ -2,6 +2,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const path = require('path');
 const db = require('../connection');
+const os = require('os')
 
 exports.send = (req, res) => {
     const { cipher } = req.body;
@@ -55,11 +56,6 @@ exports.send = (req, res) => {
     });
 };
 
-exports.encrypt = (req, res) => {
-    const {} = req.body;
-    //Inserir script de python para encriptar com base numa flag que virá do body
-};
-
 const createTempFile = (data, callback) => {
     const tempFilePath = path.join(os.tmpdir(), `tempfile-${Date.now()}`);
     fs.writeFile(tempFilePath, data, (err) => {
@@ -75,9 +71,16 @@ const removeTempFile = (filePath) => {
 };
 
 exports.decrypt = (req, res) => {
-    const { id } = req.body; 
+    console.log('Middleware body:', req.body);
 
-    // Busca o arquivo na base de dados
+    const { id } = req.body;
+
+    console.log('Received ID:', id);
+
+    if (!id) {
+        return res.status(400).send('File ID is required.');
+    }
+
     const query = 'SELECT * FROM Global WHERE id = ?';
     db.query(query, [id], (err, results) => {
         if (err) {
@@ -85,15 +88,24 @@ exports.decrypt = (req, res) => {
             return res.status(500).send('Error fetching file.');
         }
 
+        console.log('Database query results:', results);
+
         if (results.length === 0) {
             return res.status(404).send('File not found.');
         }
 
         const fileData = results[0];
-        const encryptedFile = fileData.file;
+        const encryptedFile = Buffer.from(fileData.file, 'hex');
         const keyUsed = Buffer.from(fileData.key_used, 'hex');
         const ivUsed = Buffer.from(fileData.iv_used, 'hex');
-        const cipherType = fileData.cipher;
+        const cipherType = 'aes-256-cbc'
+
+
+        console.log('File data:', fileData);
+        console.log('Encrypted file:', encryptedFile);
+        console.log('Key used:', keyUsed);
+        console.log('IV used:', ivUsed);
+        console.log('Cipher type:', cipherType);
 
         const decryptFile = (encrypted, key, iv) => {
             const decipher = crypto.createDecipheriv(cipherType, key, iv);
@@ -102,28 +114,30 @@ exports.decrypt = (req, res) => {
             return decrypted;
         };
 
-        // Descriptografa o arquivo
         const decryptedFile = decryptFile(encryptedFile, keyUsed, ivUsed);
 
-        // Verifica a integridade do arquivo usando o código de autenticação de mensagens (MAC)
+        console.log('Decrypted file:', decryptedFile);
+
         const hmac = crypto.createHmac('sha256', keyUsed);
-        hmac.update(decryptedFile);
+        hmac.update(encryptedFile);
         const calculatedMac = hmac.digest('hex');
+
+        console.log('Calculated MAC:', calculatedMac);
+        console.log('Stored MAC:', fileData.mac);
 
         if (calculatedMac !== fileData.mac) {
             return res.status(400).send('File integrity check failed.');
         }
 
-        // Cria um arquivo temporário para o arquivo descriptografado
         createTempFile(decryptedFile, (err, tempFilePath) => {
             if (err) {
                 console.log(err);
-                return res.status(500).send('An error occurred while creating the temporary file');
+                return res.status(500).send('An error occurred while creating the temporary file.');
             }
 
-            // Envia o arquivo descriptografado para o usuário
+            console.log('Temporary file path:', tempFilePath);
+
             res.download(tempFilePath, `decrypted_file_${id}`, (err) => {
-                // Remove o arquivo temporário após o envio
                 removeTempFile(tempFilePath);
                 if (err) {
                     console.error('Error sending file:', err);
