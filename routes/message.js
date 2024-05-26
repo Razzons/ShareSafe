@@ -16,5 +16,6 @@ const upload = multer({ dest: uploadDirectory });
 
 router.post('/send', upload.single('fileToSend'), messageController.send);
 router.post('/decrypt', messageController.decrypt);
+router.post('/grp', messageController.grp);
 
 module.exports = router;

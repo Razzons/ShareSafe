@@ -146,3 +146,25 @@ exports.decrypt = (req, res) => {
         });
     });
 };
+
+exports.grp = (req, res) => {
+    const { groupName, userGroup } = req.body;
+
+    if (!groupName || !userGroup || userGroup.length === 0) {
+        return res.status(400).send('O nome do grupo e pelo menos um elemento é necessário.');
+    }
+
+    const diffieGrp = 'default_value';
+
+    const groupQuery = 'INSERT INTO Grupo (userId, name, diffieGrp) VALUES ?';
+    const groupValues = userGroup.map(userId => [userId, groupName, diffieGrp]);
+
+    db.query(groupQuery, [groupValues], (error, results) => {
+        if (error) {
+            console.error('Error inserting group:', error);
+            return res.status(500).send('Ocorreu um erro ao criar o grupo.');
+        }
+
+        res.redirect('/home');
+    });
+};

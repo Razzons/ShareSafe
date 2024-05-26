@@ -18,7 +18,7 @@
 
     <div class="form-box login">
       <h2>Group Creation</h2>
-      <form action="/wl/create" method="POST">
+      <form action="/msg/grp" method="POST">
         <div class="input-box">
           <span class="icon"><ion-icon name="people-circle-outline"></ion-icon></span>
           <input type="text" id="groupName" name="groupName">
@@ -48,49 +48,42 @@
     </div>
   </div>
 
-  {{#if wMessage}}
-    <script>
-      window.onload = function() {
-        alert("{{message}}");
-      };
-    </script>
-  {{/if}} 
-
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
   <script src="/script.js"></script>
 
   <script>
     document.getElementById('add-user').addEventListener('click', function() {
-      const userDropdown = document.getElementById('user-dropdown');
-      const selectedUserId = userDropdown.value;
-      const selectedUserName = userDropdown.options[userDropdown.selectedIndex].text;
-      
-      if (selectedUserId && !document.getElementById('user-' + selectedUserId)) {
+    const userDropdown = document.getElementById('user-dropdown');
+    const selectedUserId = userDropdown.value;
+    const selectedUserName = userDropdown.options[userDropdown.selectedIndex].text;
+
+    if (selectedUserId && !document.getElementById('user-' + selectedUserId)) {
         const userList = document.getElementById('user-list');
-        
+
         const li = document.createElement('li');
         li.id = 'user-' + selectedUserId;
         li.textContent = selectedUserName;
-        
+
         const removeButton = document.createElement('button');
         removeButton.type = 'button';
-        removeButton.textContent = 'Remove';
+        removeButton.textContent = 'Remover';
         removeButton.classList.add('remove-user-btn');
         removeButton.onclick = function() {
-          userList.removeChild(li);
+            userList.removeChild(li);
         };
-        
+
         const hiddenInput = document.createElement('input');
         hiddenInput.type = 'hidden';
         hiddenInput.name = 'userGroup[]';
         hiddenInput.value = selectedUserId;
-        
+
         li.appendChild(hiddenInput);
         li.appendChild(removeButton);
         userList.appendChild(li);
-      }
-    });
+    }
+});
+
   </script>
 </body>
 
