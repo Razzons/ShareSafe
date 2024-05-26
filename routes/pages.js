@@ -35,4 +35,27 @@ router.get('/message', (req, res) => {
     res.render('message', { user: req.session.user });
 });
 
+router.post('/group-create', (req, res) => {
+    const { groupName, userGroup } = req.body;
+
+    if (!groupName || !userGroup || userGroup.length === 0) {
+        return res.status(400).send('O nome do grupo e pelo menos um elemento é necessário.');
+    }
+
+    const diffieGrp = 'default_value';
+
+    const groupQuery = 'INSERT INTO groups (userId, name, diffieGrp) VALUES ?';
+    const groupValues = userGroup.map(userId => [userId, groupName, diffieGrp]);
+
+    db.query(groupQuery, [groupValues], (error, results) => {
+        if (error) {
+            console.error('Error inserting group:', error);
+            return res.status(500).send('Ocorreu um erro ao criar o grupo.');
+        }
+
+        res.redirect('/success');
+    });
+});
+
+
 module.exports = router;

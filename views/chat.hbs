@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="X-UA-Compatible"="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/chat.css">
     <title>ShareSafe</title>
 </head>
 <body>
@@ -18,7 +18,6 @@
             </form>
         </nav>
     </header>
-
     <div class="addWallet">
         <a href="/grp_create"><button class="add">Create Group</button></a>
         <a href="/message"><button class="add">Send Message</button></a>
@@ -29,29 +28,62 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>User ID</th>
                     <th>File</th>
-                    <th>Key Used</th>
-                    <th>IV Used</th>
-                    <th>Cipher</th>
                     <th>MAC</th>
+                    <th>Action</th> <!-- Adiciona uma coluna para os botões -->
                 </tr>
             </thead>
             <tbody>
                 {{#each files}}
                     <tr>
-                        <td>{{this.id}}</td>
                         <td>{{this.user_id}}</td>
                         <td>{{this.file}}</td>
-                        <td>{{this.key_used}}</td>
-                        <td>{{this.iv_used}}</td>
-                        <td>{{this.cipher}}</td>
                         <td>{{this.mac}}</td>
+                        <td>
+                            <button class="decrypt-button" data-id="{{this.id}}">Decrypt</button>
+                        </td> <!-- Adiciona o botão com o ID do arquivo -->
                     </tr>
                 {{/each}}
             </tbody>
         </table>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const buttons = document.querySelectorAll('.decrypt-button');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', async () => {
+                    const fileId = button.getAttribute('data-id');
+                    
+                    try {
+                        const response = await fetch('/msg/decrypt', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ id: fileId })
+                        });
+
+                        if (response.ok) {
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'decrypted_file';
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                        } else {
+                            console.error('Failed to decrypt file:', response.statusText);
+                        }
+                    } catch (error) {
+                        console.error('Error decrypting file:', error);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
