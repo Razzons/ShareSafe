@@ -18,7 +18,7 @@
 
     <div class="form-box login">
       <h2>Group Creation</h2>
-      <form action="/group-create" method="POST">
+      <form action="/wl/create" method="POST">
         <div class="input-box">
           <span class="icon"><ion-icon name="people-circle-outline"></ion-icon></span>
           <input type="text" id="groupName" name="groupName">
@@ -47,14 +47,6 @@
       </form>
     </div>
   </div>
-
-  {{#if wMessage}}
-    <script>
-      window.onload = function() {
-        alert("{{message}}");
-      };
-    </script>
-  {{/if}} 
 
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>

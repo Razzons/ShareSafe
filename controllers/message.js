@@ -2,6 +2,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const path = require('path');
 const db = require('../connection');
+const os = require('os')
 
 exports.send = (req, res) => {
     const { cipher } = req.body;
@@ -55,11 +56,115 @@ exports.send = (req, res) => {
     });
 };
 
-exports.encrypt = (req, res) => {
-    const {} = req.body;
-    //Inserir script de python para encriptar com base numa flag que virá do body
+const createTempFile = (data, callback) => {
+    const tempFilePath = path.join(os.tmpdir(), `tempfile-${Date.now()}`);
+    fs.writeFile(tempFilePath, data, (err) => {
+        if (err) return callback(err);
+        callback(null, tempFilePath);
+    });
+};
+
+const removeTempFile = (filePath) => {
+    fs.unlink(filePath, (err) => {
+        if (err) console.error('Error deleting temporary file:', err);
+    });
 };
 
 exports.decrypt = (req, res) => {
-    //Inserir script de python para desencriptar
+    console.log('Middleware body:', req.body);
+
+    const { id } = req.body;
+
+    console.log('Received ID:', id);
+
+    if (!id) {
+        return res.status(400).send('File ID is required.');
+    }
+
+    const query = 'SELECT * FROM Global WHERE id = ?';
+    db.query(query, [id], (err, results) => {
+        if (err) {
+            console.error('Error fetching file:', err);
+            return res.status(500).send('Error fetching file.');
+        }
+
+        console.log('Database query results:', results);
+
+        if (results.length === 0) {
+            return res.status(404).send('File not found.');
+        }
+
+        const fileData = results[0];
+        const encryptedFile = Buffer.from(fileData.file, 'hex');
+        const keyUsed = Buffer.from(fileData.key_used, 'hex');
+        const ivUsed = Buffer.from(fileData.iv_used, 'hex');
+        const cipherType = 'aes-256-cbc'
+
+
+        console.log('File data:', fileData);
+        console.log('Encrypted file:', encryptedFile);
+        console.log('Key used:', keyUsed);
+        console.log('IV used:', ivUsed);
+        console.log('Cipher type:', cipherType);
+
+        const decryptFile = (encrypted, key, iv) => {
+            const decipher = crypto.createDecipheriv(cipherType, key, iv);
+            let decrypted = decipher.update(encrypted);
+            decrypted = Buffer.concat([decrypted, decipher.final()]);
+            return decrypted;
+        };
+
+        const decryptedFile = decryptFile(encryptedFile, keyUsed, ivUsed);
+
+        console.log('Decrypted file:', decryptedFile);
+
+        const hmac = crypto.createHmac('sha256', keyUsed);
+        hmac.update(encryptedFile);
+        const calculatedMac = hmac.digest('hex');
+
+        console.log('Calculated MAC:', calculatedMac);
+        console.log('Stored MAC:', fileData.mac);
+
+        if (calculatedMac !== fileData.mac) {
+            return res.status(400).send('File integrity check failed.');
+        }
+
+        createTempFile(decryptedFile, (err, tempFilePath) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).send('An error occurred while creating the temporary file.');
+            }
+
+            console.log('Temporary file path:', tempFilePath);
+
+            res.download(tempFilePath, `decrypted_file_${id}`, (err) => {
+                removeTempFile(tempFilePath);
+                if (err) {
+                    console.error('Error sending file:', err);
+                }
+            });
+        });
+    });
+};
+
+exports.grp = (req, res) => {
+    const { groupName, userGroup } = req.body;
+
+    if (!groupName || !userGroup || userGroup.length === 0) {
+        return res.status(400).send('O nome do grupo e pelo menos um elemento é necessário.');
+    }
+
+    const diffieGrp = 'default_value';
+
+    const groupQuery = 'INSERT INTO Grupo (userId, name, diffieGrp) VALUES ?';
+    const groupValues = userGroup.map(userId => [userId, groupName, diffieGrp]);
+
+    db.query(groupQuery, [groupValues], (error, results) => {
+        if (error) {
+            console.error('Error inserting group:', error);
+            return res.status(500).send('Ocorreu um erro ao criar o grupo.');
+        }
+
+        res.redirect('/home');
+    });
 };

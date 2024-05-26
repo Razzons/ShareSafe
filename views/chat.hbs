@@ -41,7 +41,9 @@
                         <td>{{this.file}}</td>
                         <td>{{this.mac}}</td>
                         <td>
-                            <button class="decrypt-button" data-id="{{this.id}}">Decrypt</button>
+                            <form action="/msg/decrypt" method="POST">
+                            <input type="hidden" name="id" value="{{this.id}}">
+                            <button type="submit" class="decrypt-button">Decrypt</button></form>
                         </td> <!-- Adiciona o botão com o ID do arquivo -->
                     </tr>
                 {{/each}}

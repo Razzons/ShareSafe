@@ -15,7 +15,7 @@ if (!fs.existsSync(uploadDirectory)) {
 const upload = multer({ dest: uploadDirectory });
 
 router.post('/send', upload.single('fileToSend'), messageController.send);
-router.post('/encrypt', messageController.encrypt);
 router.post('/decrypt', messageController.decrypt);
+router.post('/grp', messageController.grp);
 
 module.exports = router;

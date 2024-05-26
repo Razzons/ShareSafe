@@ -11,7 +11,7 @@ router.get('/home', (req,res) => {
 });
 
 router.get('/chat', (req, res) => {
-    db.query('SELECT * FROM Global', (error, results) => {
+    db.query('SELECT user_id, file, mac, id FROM Global', (error, results) => {
         if (error) {
             console.log(error);
             return res.status(500).send('An error occurred');
