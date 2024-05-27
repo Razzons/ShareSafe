@@ -27,7 +27,7 @@ function removeTempFile(filePath) {
 exports.register = (req, res) => {
     const { username, email, password, passwordConfirm } = req.body;
 
-    db.query("SELECT email, username FROM User WHERE email = ? OR username = ?", [email, username], (error, results) => {
+    db.query("SELECT email, username FROM users WHERE email = ? OR username = ?", [email, username], (error, results) => {
         if (error) {
             console.log(error);
             return res.render("index", {
@@ -64,12 +64,12 @@ exports.register = (req, res) => {
         const privateKeyPem = forge.pki.privateKeyToPem(keypair.privateKey);
 
         // Save public key in the database
-        db.query('INSERT INTO User SET ?', {
+        db.query('INSERT INTO users SET ?', {
             username: username, 
             salt: salt, 
             password: hashedPassword, 
             email: email, 
-            publicKey: publicKeyPem
+            public_Key: publicKeyPem
         }, (error, results) => {
             if (error) {
                 console.log(error);
@@ -99,6 +99,19 @@ exports.register = (req, res) => {
                                 message: "An error occurred while sending the private key file"
                             });
                         }
+
+                        // Insert into Grupo table
+                        db.query('INSERT INTO Grupo SET ?', {
+                            user_id: results.insertId, // Assuming the user_id is the primary key of the users table
+                            nome: "Global",
+                        }, (error, results) => {
+                            if (error) {
+                                console.log(error);
+                                return res.render("index", {
+                                    message: "An error occurred while adding the user to Grupo"
+                                });
+                            }
+                        });
                     });
                 });
             }
@@ -106,11 +119,12 @@ exports.register = (req, res) => {
     });
 };
 
+
 exports.login = (req, res) => {
 
     const {username, password} = req.body
 
-    db.query("SELECT * FROM User WHERE username = ?", [username], async (error, results) => {
+    db.query("SELECT * FROM users WHERE username = ?", [username], async (error, results) => {
         if (error) {
             console.log(error);
         } 
