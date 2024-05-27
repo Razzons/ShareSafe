@@ -5,14 +5,15 @@ const db = require('../connection');
 const os = require('os')
 
 exports.send = (req, res) => {
-    const {cifra} = req.body;
-    console.log(cifra);
-    const {chatName} = req.body;
+    const { cifra } = req.body;
+    const { chatName } = req.body;
     const file = req.file;
 
     if (!file) {
         return res.status(400).send('No file uploaded.');
     }
+
+    const user_id = req.session.user.id;
 
     // Lê o conteúdo do arquivo
     const filePath = file.path;
@@ -21,42 +22,95 @@ exports.send = (req, res) => {
     // Gera uma chave para cifrar o arquivo
     const key = crypto.randomBytes(32);
     const iv = crypto.randomBytes(16);
+    
 
-    // Função para cifrar usando AES
-    const encryptFile = (buffer, key, iv) => {
-        const cipher = crypto.createCipheriv(cifra, key, iv);
-        let encrypted = cipher.update(buffer);
-        encrypted = Buffer.concat([encrypted, cipher.final()]);
-        return encrypted;
+    // Função para verificar a assinatura digital
+    const verifySignature = (publicKey, data, signature) => {
+        const verify = crypto.createVerify('sha256');
+        verify.update(data);
+        verify.end();
+        return verify.verify(publicKey, signature);
     };
 
-    // Cifra o arquivo
-    const encryptedFile = encryptFile(fileBuffer, key, iv);
+    // Se o cifra for "signature", verificar a assinatura
+    if (cifra === "signature") {
+        const getPublicKeyQuery = "SELECT public_key FROM Users WHERE id = ?";
+        db.query(getPublicKeyQuery, [user_id], (err, results) => {
+            if (err) {
+                console.error('Error fetching public key:', err);
+                return res.status(500).send('Error fetching public key.');
+            }
 
-    // Calcula um código de autenticação de mensagens (MAC) usando HMAC
-    const hmac = crypto.createHmac('sha256', key);
-    hmac.update(encryptedFile);
-    const messageAuthenticationCode = hmac.digest('hex');
+            if (results.length === 0) {
+                return res.status(404).send('User not found.');
+            }
 
-    // Converte a chave e o IV para strings para armazenamento
-    const keyUsed = key.toString('hex');
-    const ivUsed = iv.toString('hex');
+            const publicKey = results[0].public_key;
 
-    const user_id = req.session.user.id;
+            // Aqui, assumimos que o arquivo tem a assinatura anexada no final
+            const signatureLength = 256; // tamanho da assinatura RSA SHA-256 em bytes
+            const dataLength = fileBuffer.length - signatureLength;
 
-    // Insere os dados na base de dados para cada usuário
-    const query = 'INSERT INTO Global (user_id, file, key_used, iv_used, cipher, mac, viewer) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    db.query(query, [user_id, encryptedFile, keyUsed, ivUsed, cifra, messageAuthenticationCode, chatName], (err, results) => {
-        if (err) {
-            console.error('Error inserting file:', err);
-            return res.status(500).send('Error inserting file.');
-        }
+            const data = fileBuffer.slice(0, dataLength);
+            const file = fileBuffer.slice(0, dataLength); // dados originais
+            const signature = fileBuffer.slice(dataLength); // assinatura
 
-        // Remove o arquivo temporário após a cifragem e a inserção na base de dados
-        fs.unlinkSync(filePath);
+            if (!verifySignature(publicKey, file, signature)) {
+                return res.status(400).send('Invalid signature.');
+            }
 
-        res.status(200).send('File sent securely to all users!');
-    });
+            const hmac = crypto.createHmac('sha256', key);
+            hmac.update(data);
+            const messageAuthenticationCode = hmac.digest('hex');
+
+            const querySig = "INSERT INTO Global (user_id, file, cipher, mac, viewer) VALUES (?, ?, ?, ?, ?)";
+            db.query(querySig, [user_id, data, cifra, messageAuthenticationCode, chatName], (err) => {
+                if (err) {
+                    console.error('Error inserting file:', err);
+                    return res.status(500).send('Error inserting file.');
+                }
+
+                // Remove o arquivo temporário após a inserção na base de dados
+                fs.unlinkSync(filePath);
+
+                res.status(200).send('File sent securely to all users with valid signature!');
+            });
+        });
+    } else {
+        // Função para cifrar usando AES
+        const encryptFile = (buffer, key, iv) => {
+            const cipher = crypto.createCipheriv(cifra, key, iv);
+            let encrypted = cipher.update(buffer);
+            encrypted = Buffer.concat([encrypted, cipher.final()]);
+            return encrypted;
+        };
+
+        // Cifra o arquivo
+        const encryptedFile = encryptFile(fileBuffer, key, iv);
+
+        // Calcula um código de autenticação de mensagens (MAC) usando HMAC
+        const hmac = crypto.createHmac('sha256', key);
+        hmac.update(encryptedFile);
+        const messageAuthenticationCode = hmac.digest('hex');
+
+        // Converte a chave e o IV para strings para armazenamento
+        const keyUsed = key.toString('hex');
+        const ivUsed = iv.toString('hex');
+
+        // Insere os dados na base de dados para cada usuário
+        const query = 'INSERT INTO Global (user_id, file, key_used, iv_used, cipher, mac, viewer) VALUES (?, ?, ?, ?, ?, ?, ?)';
+        db.query(query, [user_id, encryptedFile, keyUsed, ivUsed, cifra, messageAuthenticationCode, chatName], (err, results) => {
+            if (err) {
+                console.error('Error inserting file:', err);
+                return res.status(500).send('Error inserting file.');
+            }
+
+            // Remove o arquivo temporário após a cifragem e a inserção na base de dados
+            fs.unlinkSync(filePath);
+
+            res.status(200).send('File sent securely to all users!');
+        });
+    }
 };
 
 const createTempFile = (data, callback) => {
@@ -76,7 +130,7 @@ const removeTempFile = (filePath) => {
 exports.decrypt = (req, res) => {
     console.log('Middleware body:', req.body);
 
-    const { id } = req.body;
+    const { id, cifra } = req.body;
 
     console.log('Received ID:', id);
 
@@ -98,55 +152,73 @@ exports.decrypt = (req, res) => {
         }
 
         const fileData = results[0];
-        const encryptedFile = Buffer.from(fileData.file, 'hex');
-        const keyUsed = Buffer.from(fileData.key_used, 'hex');
-        const ivUsed = Buffer.from(fileData.iv_used, 'hex');
-        const cipherType = fileData.cipher;
+        const fileBuffer = Buffer.from(fileData.file, 'hex');
 
+        if (cifra === "signature") {
+            createTempFile(fileBuffer, (err, tempFilePath) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).send('An error occurred while creating the temporary file.');
+                }
 
-        console.log('File data:', fileData);
-        console.log('Encrypted file:', encryptedFile);
-        console.log('Key used:', keyUsed);
-        console.log('IV used:', ivUsed);
-        console.log('Cipher type:', cipherType);
+                console.log('Temporary file path:', tempFilePath);
 
-        const decryptFile = (encrypted, key, iv) => {
-            const decipher = crypto.createDecipheriv(cipherType, key, iv);
-            let decrypted = decipher.update(encrypted);
-            decrypted = Buffer.concat([decrypted, decipher.final()]);
-            return decrypted;
-        };
+                res.download(tempFilePath, `file_${id}`, (err) => {
+                    removeTempFile(tempFilePath);
+                    if (err) {
+                        console.error('Error sending file:', err);
+                    }
+                });
+            });
+        } else {
+            const keyUsed = Buffer.from(fileData.key_used, 'hex');
+            const ivUsed = Buffer.from(fileData.iv_used, 'hex');
+            const cipherType = fileData.cipher;
 
-        const decryptedFile = decryptFile(encryptedFile, keyUsed, ivUsed);
+            console.log('File data:', fileData);
+            console.log('Encrypted file:', fileBuffer);
+            console.log('Key used:', keyUsed);
+            console.log('IV used:', ivUsed);
+            console.log('Cipher type:', cipherType);
 
-        console.log('Decrypted file:', decryptedFile);
+            const decryptFile = (encrypted, key, iv) => {
+                const decipher = crypto.createDecipheriv(cipherType, key, iv);
+                let decrypted = decipher.update(encrypted);
+                decrypted = Buffer.concat([decrypted, decipher.final()]);
+                return decrypted;
+            };
 
-        const hmac = crypto.createHmac('sha256', keyUsed);
-        hmac.update(encryptedFile);
-        const calculatedMac = hmac.digest('hex');
+            const decryptedFile = decryptFile(fileBuffer, keyUsed, ivUsed);
 
-        console.log('Calculated MAC:', calculatedMac);
-        console.log('Stored MAC:', fileData.mac);
+            console.log('Decrypted file:', decryptedFile);
 
-        if (calculatedMac !== fileData.mac) {
-            return res.status(400).send('File integrity check failed.');
-        }
+            const hmac = crypto.createHmac('sha256', keyUsed);
+            hmac.update(fileBuffer);
+            const calculatedMac = hmac.digest('hex');
 
-        createTempFile(decryptedFile, (err, tempFilePath) => {
-            if (err) {
-                console.log(err);
-                return res.status(500).send('An error occurred while creating the temporary file.');
+            console.log('Calculated MAC:', calculatedMac);
+            console.log('Stored MAC:', fileData.mac);
+
+            if (calculatedMac !== fileData.mac) {
+                return res.status(400).send('File integrity check failed.');
             }
 
-            console.log('Temporary file path:', tempFilePath);
-
-            res.download(tempFilePath, `decrypted_file_${id}`, (err) => {
-                removeTempFile(tempFilePath);
+            createTempFile(decryptedFile, (err, tempFilePath) => {
                 if (err) {
-                    console.error('Error sending file:', err);
+                    console.log(err);
+                    return res.status(500).send('An error occurred while creating the temporary file.');
                 }
+
+                console.log('Temporary file path:', tempFilePath);
+
+                res.download(tempFilePath, `decrypted_file_${id}`, (err) => {
+                    removeTempFile(tempFilePath);
+                    if (err) {
+                        console.error('Error sending file:', err);
+                    }
+                });
             });
-        });
+        }
     });
 };
 

@@ -49,7 +49,7 @@ router.get('/chat', (req, res) => {
         }
 
         // Construímos a query para buscar os arquivos
-        const sql = `SELECT user_id,viewer, file, mac,id FROM Global WHERE viewer IN (${usernames.map(() => '?').join(', ')})`;
+        const sql = `SELECT user_id,viewer, file, mac, id, cipher FROM Global WHERE viewer IN (${usernames.map(() => '?').join(', ')})`;
         
         // Executamos a query passando os nomes como parâmetros
         db.query(sql, usernames, (error, results) => {
@@ -63,7 +63,6 @@ router.get('/chat', (req, res) => {
 });
 
 router.get('/grp_create', (req, res) => {
-
 
     db.query('SELECT id, username FROM Users', (error, results) => {
         if (error) {

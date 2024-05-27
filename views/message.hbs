@@ -24,8 +24,8 @@
                     <select id="chatName" name="chatName">
                         <!-- Adicione outras opções de usuários aqui -->
                         {{#each grupos}}
-              <option value="{{this.nome}}">{{this.nome}}</option><br><br>
-            {{/each}}
+                            <option value="{{this.nome}}">{{this.nome}}</option><br><br>
+                        {{/each}}
                         <!-- ... -->
                     </select>
                 </div>
@@ -33,6 +33,7 @@
                     <h3>Choose a Cipher</h3>
                     <select id="cifra" name="cifra">
                         <option value="aes-256-cbc">AES-256</option>
+                        <option value="signature">Digital Signature</option>
                         <!-- Adicione outras opções de cifras aqui se necessário -->
                         <!-- <option value="otherCipher">Other Cipher</option> -->
                     </select>
@@ -41,6 +42,10 @@
                     <h3>File to send...</h3>
                     <input type="file" id="fileToSend" name="fileToSend">
                 </div>
+                <p>If you want to sign a document make this command in your terminal and send the file using Digital Signature mode:</p>
+                <p>openssl dgst -sha256 -sign privateKey.pem -out signature.sig file.txt</p>
+                <p>Then concat those files using:</p>
+                <p>cat file.txt signature.sig > newfile.txt</p>
                 <button type="submit" class="btn">Send File</button>
             </form>
         </div>

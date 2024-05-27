@@ -45,6 +45,7 @@
                         <td>
                             <form action="/msg/decrypt" method="POST">
                             <input type="hidden" name="id" value="{{this.id}}">
+                            <input type="hidden" name="cifra" value="{{this.cipher}}">
                             <button type="submit" class="decrypt-button">Decrypt</button></form>
                         </td> <!-- Adiciona o botão com o ID do arquivo -->
                     </tr>
