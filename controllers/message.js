@@ -45,7 +45,7 @@ exports.send = (req, res) => {
     const user_id = req.session.user.id;
 
     // Insere os dados na base de dados para cada usuário
-    const query = 'INSERT INTO global (user_id, file, key_used, iv_used, cipher, mac, viewer) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO Global (user_id, file, key_used, iv_used, cipher, mac, viewer) VALUES (?, ?, ?, ?, ?, ?, ?)';
     db.query(query, [user_id, encryptedFile, keyUsed, ivUsed, cifra, messageAuthenticationCode, chatName], (err, results) => {
         if (err) {
             console.error('Error inserting file:', err);
@@ -84,7 +84,7 @@ exports.decrypt = (req, res) => {
         return res.status(400).send('File ID is required.');
     }
 
-    const query = 'SELECT * FROM global WHERE id = ?';
+    const query = 'SELECT * FROM Global WHERE id = ?';
     db.query(query, [id], (err, results) => {
         if (err) {
             console.error('Error fetching file:', err);
@@ -160,7 +160,7 @@ exports.grp = (req, res) => {
   
 
     // Verificar se já existe um grupo com o mesmo nome
-    const checkGroupQuery = 'SELECT id FROM grupo WHERE nome = ?';
+    const checkGroupQuery = 'SELECT id FROM Grupo WHERE nome = ?';
     db.query(checkGroupQuery, [groupName], (error, results) => {
         if (error) {
             console.error('Error checking group name:', error);
@@ -172,7 +172,7 @@ exports.grp = (req, res) => {
         }
 
         // Se não houver duplicatas, insira o novo grupo
-        const groupQuery = 'INSERT INTO grupo (user_Id, nome) VALUES ?';
+        const groupQuery = 'INSERT INTO Grupo (user_Id, nome) VALUES ?';
         const groupValues = userGroup.map(userId => [userId, groupName]);
 
         db.query(groupQuery, [groupValues], (error, results) => {

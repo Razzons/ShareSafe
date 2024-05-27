@@ -27,7 +27,7 @@ function removeTempFile(filePath) {
 exports.register = (req, res) => {
     const { username, email, password, passwordConfirm } = req.body;
 
-    db.query("SELECT email, username FROM users WHERE email = ? OR username = ?", [email, username], (error, results) => {
+    db.query("SELECT email, username FROM Users WHERE email = ? OR username = ?", [email, username], (error, results) => {
         if (error) {
             console.log(error);
             return res.render("index", {
@@ -64,7 +64,7 @@ exports.register = (req, res) => {
         const privateKeyPem = forge.pki.privateKeyToPem(keypair.privateKey);
 
         // Save public key in the database
-        db.query('INSERT INTO users SET ?', {
+        db.query('INSERT INTO Users SET ?', {
             username: username, 
             salt: salt, 
             password: hashedPassword, 
@@ -124,7 +124,7 @@ exports.login = (req, res) => {
 
     const {username, password} = req.body
 
-    db.query("SELECT * FROM users WHERE username = ?", [username], async (error, results) => {
+    db.query("SELECT * FROM Users WHERE username = ?", [username], async (error, results) => {
         if (error) {
             console.log(error);
         } 
