@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <title>Central de Ajuda - ShareSafe</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .container { width: 80%; margin: auto; padding: 20px; background: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        h2 { color: #444; }
+        .search-bar { margin: 20px 0; }
+        .category { margin: 20px 0; }
+        .faq { margin: 10px 0; }
+        .faq h3 { cursor: pointer; background: #eee; padding: 10px; border-radius: 5px; }
+        .faq .answer { display: none; padding: 10px; background: #fafafa; border-left: 5px solid #ccc; }
+        .faq .answer pre { background: #f1f1f1; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Central de Ajuda - ShareSafe</h1>
+        <p>Bem-vindo à Central de Ajuda do ShareSafe. Aqui irás encontrar informações sobre como usar o nosso website que tem como objetivo distribuir ficheiros
+dentro de um grupo restrito de utilizadores de uma forma segura.</p>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Digite sua pergunta..." onkeyup="searchFAQ()">
+        </div>
+
+        <div class="category">
+            <h2>Registro e Autenticação</h2>
+            <div class="faq">
+                <h3 onclick="toggleAnswer(this)">Como criar uma conta no ShareSafe?</h3>
+                <div class="answer">
+                    <p>Para criar uma conta, clique no botão "Registrar" na página inicial e preencha o formulário com seu nome de usuário e senha. Você receberá uma chave de acesso segura que deve ser guardada para uso futuro.</p>
+                </div>
+            </div>
+            <div class="faq">
+                <h3 onclick="toggleAnswer(this)">Como fazer login no ShareSafe?</h3>
+                <div class="answer">
+                    <p>Na página de login, insira seu nome de usuário e senha. Após a autenticação, você terá acesso às funcionalidades de envio e recepção de arquivos.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2>Transmissão de Arquivos</h2>
+            <div class="faq">
+                <h3 onclick="toggleAnswer(this)">Como enviar um arquivo para todos os usuários?</h3>
+                <div class="answer">
+                    <p>Para enviar um arquivo a todos os usuários, siga os passos abaixo:</p>
+                    <ol>
+                        <li>Faça login no ShareSafe.</li>
+                        <li>Vá até a seção "Enviar Arquivo".</li>
+                        <li>Selecione o arquivo que deseja enviar.</li>
+                        <li>Escolha a opção "Enviar para todos".</li>
+                        <li>O arquivo será cifrado e enviado de forma segura para todos os usuários.</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="faq">
+                <h3 onclick="toggleAnswer(this)">Como enviar um arquivo para um subconjunto de usuários?</h3>
+                <div class="answer">
+                    <p>Para enviar um arquivo a um grupo específico de usuários:</p>
+                    <ol>
+                        <li>Faça login no ShareSafe.</li>
+                        <li>Vá até a seção "Enviar Arquivo".</li>
+                        <li>Selecione o arquivo que deseja enviar.</li>
+                        <li>Escolha os destinatários do arquivo.</li>
+                        <li>O arquivo será cifrado e enviado de forma segura para os usuários selecionados.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2>Funcionalidades Avançadas</h2>
+            <div class="faq">
+                <h3 onclick="toggleAnswer(this)">Como armazenar senhas de forma segura?</h3>
+                <div class="answer">
+                    <p>O ShareSafe utiliza algoritmos de hash seguros para armazenar senhas. Certifique-se de escolher uma senha forte e única para sua conta.</p>
+                </div>
+            </div>
+            <div class="faq">
+                <h3 onclick="toggleAnswer(this)">Como usar Diffie-Hellman para estabelecer chaves de grupo?</h3>
+                <div class="answer">
+                    <p>O ShareSafe implementa o protocolo Diffie-Hellman de grupo para estabelecer chaves de sessão entre os usuários. Esta funcionalidade garante que apenas os membros do grupo possam decifrar os arquivos compartilhados.</p>
+                </div>
+            </div>
+            <div class="faq">
+                <h3 onclick="toggleAnswer(this)">Como adicionar uma assinatura digital a um arquivo?</h3>
+                <div class="answer">
+                    <p>Para adicionar uma assinatura digital a um arquivo, siga os passos abaixo:</p>
+                    <ol>
+                        <li>Selecione o arquivo que deseja assinar.</li>
+                        <li>Use a chave privada correspondente para gerar a assinatura digital.</li>
+                        <li>Anexe a assinatura digital ao arquivo usando o OpenSSL ou outra ferramenta de sua escolha.</li>
+                    </ol>
+                    <pre>
+openssl dgst -sha256 -sign chave_privada.pem -out assinatura.sig arquivo.ext
+                    </pre>
+                </div>
+            </div>
+            <div class="faq">
+                <h3 onclick="toggleAnswer(this)">Como validar a assinatura digital de um arquivo?</h3>
+                <div class="answer">
+                    <p>Para validar a assinatura digital de um arquivo, siga os passos abaixo:</p>
+                    <ol>
+                        <li>Obtenha a chave pública do assinante ou o certificado digital.</li>
+                        <li>Use a chave pública ou o certificado para verificar a assinatura.</li>
+                        <li>Utilize o OpenSSL ou outra ferramenta para realizar a validação.</li>
+                    </ol>
+                    <pre>
+openssl dgst -sha256 -verify chave_publica.pem -signature assinatura.sig arquivo.ext
+                    </pre>
+                </div>
+            </div>
+            <div class="faq">
+                <h3 onclick="toggleAnswer(this)">Como escolher a cifra e o comprimento da chave?</h3>
+                <div class="answer">
+                    <p>Na seção de configurações do ShareSafe, você pode selecionar a cifra preferida (ex: AES, RSA) e o comprimento da chave (ex: 128 bits, 256 bits) para criptografar seus arquivos.</p>
+                </div>
+            </div>
+            <div class="faq">
+                <h3 onclick="toggleAnswer(this)">Como escolher a função de hash?</h3>
+                <div class="answer">
+                    <p>Na seção de configurações, você também pode escolher a função de hash (ex: SHA-256, SHA-512) que será utilizada para garantir a integridade dos arquivos.</p>
+                </div>
+            </div>
+            <div class="faq">
+                <h3 onclick="toggleAnswer(this)">Como testar a segurança das implementações?</h3>
+                <div class="answer">
+                    <p>Você pode usar ferramentas como o OpenSSL para testar e validar as implementações de criptografia e assinatura digital utilizadas no ShareSafe.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2>Perguntas Frequentes (FAQs)</h2>
+            <div class="faq">
+                <h3 onclick="toggleAnswer(this)">Como posso recuperar minha senha?</h3>
+                <div class="answer">
+                    <p>Clique em "Esqueci minha senha" na página de login e siga as instruções para redefinir sua senha. Um link de redefinição será enviado para seu e-mail cadastrado.</p>
+                </div>
+            </div>
+            <div class="faq">
+                <h3 onclick="toggleAnswer(this)">O que fazer se encontrar um problema de segurança?</h3>
+                <div class="answer">
+                    <p>Se você encontrar um problema de segurança, entre em contato com a equipe de suporte do ShareSafe imediatamente para que possamos investigar e resolver a questão.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleAnswer(element) {
+            var answer = element.nextElementSibling;
+            if (answer.style.display === "block") {
+                answer.style.display = "none";
+            } else {
+                answer.style.display = "block";
+            }
+        }
+
+        function searchFAQ() {
+            var input, filter, faq, h3, i, txtValue;
+            input = document.getElementById('searchInput');
+            filter = input.value.toUpperCase();
+            faq = document.getElementsByClassName('faq');
+            for (i = 0; i < faq.length; i++) {
+                h3 = faq[i].getElementsByTagName('h3')[0];
+                txtValue = h3.textContent || h3.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    faq[i].style.display = "";
+                } else {
+                    faq[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -29,15 +29,17 @@
             <thead>
                 <tr>
                     <th>User ID</th>
+                    <th>Grupo</th>
                     <th>File</th>
                     <th>MAC</th>
-                    <th>Action</th> <!-- Adiciona uma coluna para os botões -->
+                    <th>Action</th> 
                 </tr>
             </thead>
             <tbody>
                 {{#each files}}
                     <tr>
                         <td>{{this.user_id}}</td>
+                        <td>{{this.viewer}}</td>
                         <td>{{this.file}}</td>
                         <td>{{this.mac}}</td>
                         <td>

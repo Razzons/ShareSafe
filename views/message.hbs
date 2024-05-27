@@ -19,20 +19,20 @@
         <div class="form-box login">
             <h2>Send File Form</h2>
             <form action="/msg/send" method="POST" enctype="multipart/form-data">
-                <div class="input-box">
+                <div class="input-box" >
                     <h3>Send to...</h3>
                     <select id="chatName" name="chatName">
-                        <option value="global">Global</option>
                         <!-- Adicione outras opções de usuários aqui -->
-                        <option value="user1">User 1</option>
-                        <option value="user2">User 2</option>
+                        {{#each grupos}}
+              <option value="{{this.nome}}">{{this.nome}}</option><br><br>
+            {{/each}}
                         <!-- ... -->
                     </select>
                 </div>
                 <div class="input-box">
                     <h3>Choose a Cipher</h3>
-                    <select id="cipher" name="cipher">
-                        <option value="AES">AES</option>
+                    <select id="cifra" name="cifra">
+                        <option value="aes-256-cbc">AES-256</option>
                         <!-- Adicione outras opções de cifras aqui se necessário -->
                         <!-- <option value="otherCipher">Other Cipher</option> -->
                     </select>

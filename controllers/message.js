@@ -5,7 +5,9 @@ const db = require('../connection');
 const os = require('os')
 
 exports.send = (req, res) => {
-    const { cipher } = req.body;
+    const {cifra} = req.body;
+    console.log(cifra);
+    const {chatName} = req.body;
     const file = req.file;
 
     if (!file) {
@@ -22,7 +24,7 @@ exports.send = (req, res) => {
 
     // Função para cifrar usando AES
     const encryptFile = (buffer, key, iv) => {
-        const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+        const cipher = crypto.createCipheriv(cifra, key, iv);
         let encrypted = cipher.update(buffer);
         encrypted = Buffer.concat([encrypted, cipher.final()]);
         return encrypted;
@@ -41,9 +43,10 @@ exports.send = (req, res) => {
     const ivUsed = iv.toString('hex');
 
     const user_id = req.session.user.id;
+
     // Insere os dados na base de dados para cada usuário
-    const query = 'INSERT INTO Global (user_id, file, key_used, iv_used, cipher, mac) VALUES (?, ?, ?, ?, ?, ?)';
-    db.query(query, [user_id, encryptedFile, keyUsed, ivUsed, cipher, messageAuthenticationCode], (err, results) => {
+    const query = 'INSERT INTO Global (user_id, file, key_used, iv_used, cipher, mac, viewer) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    db.query(query, [user_id, encryptedFile, keyUsed, ivUsed, cifra, messageAuthenticationCode, chatName], (err, results) => {
         if (err) {
             console.error('Error inserting file:', err);
             return res.status(500).send('Error inserting file.');
@@ -98,7 +101,7 @@ exports.decrypt = (req, res) => {
         const encryptedFile = Buffer.from(fileData.file, 'hex');
         const keyUsed = Buffer.from(fileData.key_used, 'hex');
         const ivUsed = Buffer.from(fileData.iv_used, 'hex');
-        const cipherType = 'aes-256-cbc'
+        const cipherType = fileData.cipher;
 
 
         console.log('File data:', fileData);
@@ -154,17 +157,33 @@ exports.grp = (req, res) => {
         return res.status(400).send('O nome do grupo e pelo menos um elemento é necessário.');
     }
 
-    const diffieGrp = 'default_value';
+  
 
-    const groupQuery = 'INSERT INTO Grupo (userId, name, diffieGrp) VALUES ?';
-    const groupValues = userGroup.map(userId => [userId, groupName, diffieGrp]);
-
-    db.query(groupQuery, [groupValues], (error, results) => {
+    // Verificar se já existe um grupo com o mesmo nome
+    const checkGroupQuery = 'SELECT id FROM Grupo WHERE nome = ?';
+    db.query(checkGroupQuery, [groupName], (error, results) => {
         if (error) {
-            console.error('Error inserting group:', error);
-            return res.status(500).send('Ocorreu um erro ao criar o grupo.');
+            console.error('Error checking group name:', error);
+            return res.status(500).send('Ocorreu um erro ao verificar o nome do grupo.');
         }
 
-        res.redirect('/home');
+        if (results.length > 0) {
+            return res.status(400).send('Já existe um grupo com esse nome.');
+        }
+
+        // Se não houver duplicatas, insira o novo grupo
+        const groupQuery = 'INSERT INTO Grupo (user_Id, nome) VALUES ?';
+        const groupValues = userGroup.map(userId => [userId, groupName]);
+
+        db.query(groupQuery, [groupValues], (error, results) => {
+            if (error) {
+                console.error('Error inserting group:', error);
+                return res.status(500).send('Ocorreu um erro ao criar o grupo.');
+            }
+
+            res.redirect('/home');
+        });
     });
+
+
 };
