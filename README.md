@@ -28,10 +28,3 @@ ShareSafe is a secure web application designed for safe file transmission among 
 
 - **MySQL** - Database management system used to store user and file metadata.
 - **Database Structure**: The MySQL database is named **sharesafe** and includes tables as defined in the `database.sql` file.
-
-## Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/yourusername/sharesafe.git
-   cd sharesafe
