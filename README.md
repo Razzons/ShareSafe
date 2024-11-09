@@ -1,35 +1,37 @@
 # ShareSafe
 
-CyberSecurity Project 2024
+ShareSafe is a secure web application designed for safe file transmission among users. Built using Node.js and JavaScript, it employs crucial information security techniques, including HMAC, hash functions, and encryption algorithms like AES and ChaCha20, ensuring both the confidentiality and integrity of files throughout their transmission process.
 
-Website para distribuir ficheiros de forma segura feito usando Node.JS
+## Features
 
-Para executar o projeto será necessário os seguintes aspetos:
+- **Secure File Transmission**: Encrypts files using AES and ChaCha20 algorithms to protect data from unauthorized access.
+- **Data Integrity**: Utilizes HMAC and hash functions to ensure data integrity during transmission.
+- **User Authentication**: User credentials are encrypted with bcryptjs for secure login functionality.
 
-.Dependências Node.JS:
+## Technologies Used
 
- -> Node.JS
+### Backend Dependencies
 
- -> bcryptjs
+- **Node.js** - JavaScript runtime for server-side development.
+- **bcryptjs** - Library for hashing and validating passwords.
+- **body-parser** - Middleware to handle JSON and URL-encoded data.
+- **dotenv** - For managing environment variables.
+- **express** - Web framework for building the application's server.
+- **express-session** - Session middleware for managing user sessions.
+- **hbs** - Template engine for rendering HTML views.
+- **multer** - Middleware for handling file uploads.
+- **mysql** - MySQL database client for managing user and file data.
+- **node-forge** - Security library that provides cryptographic tools for HMAC, hash functions, and encryption.
+- **nodemon** - Tool for automatically restarting the server during development.
 
- -> body-parser
+### Database
 
- -> dotenv
+- **MySQL** - Database management system used to store user and file metadata.
+- **Database Structure**: The MySQL database is named **sharesafe** and includes tables as defined in the `database.sql` file.
 
- -> express
+## Installation
 
- -> express-session
-
- -> hbs
-
- -> multer
-
- -> mysql
-
- -> node-forge
-
- -> nodemon
-
-.Base de Dados mysql com o nome "sharesafe" e com as tabelas presentes no ficheiro database.sql
-
-Para executar apenas fazer "npm start"
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/yourusername/sharesafe.git
+   cd sharesafe
